@@ -5,6 +5,7 @@ import com.expensetracker.backend.model.UserRegistrationDTO;
 import com.expensetracker.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,11 +27,14 @@ public class RegistrationController {
 //      .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 //  }
 
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
   @PostMapping("/api/user/registration")
   ResponseEntity<?> addUser(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) throws URISyntaxException {
     User newUser = new User();
     newUser.setUsername(userRegistrationDTO.getUsername());
-    newUser.setPassword(userRegistrationDTO.getPassword());
+    newUser.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
     newUser.setRole("ROLE_USER");
     User result = userRepository.save(newUser);
     return ResponseEntity.created(new URI("/api/user/" + result.getId())).body(result);
